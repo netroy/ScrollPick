@@ -1,0 +1,2 @@
+#sp-outer{position:relative;width:300px;margin:0 auto;text-align:center;}
+#sp-colorBox{font-size:64px;color:#333;text-shadow:0 0 2px #AAA;position:fixed;top:200px;border: 1px solid #AAA;padding: 10px;border-radius: 10px;box-shadow: 0 0 10px #EEE;background: #EEE;width: 280px;font-family:Georgia, "Times New Roman", Times, serif;line-height: 1.2;}
