@@ -5,9 +5,17 @@
       scrollHeight = Math.max(body.scrollHeight, body.offsetHeight, body.clientHeight),
       h = 0, s=0, l=0,
       changing = false,
-      addEvent, hsl2hex;
+      ua = navigator.userAgent.toLowerCase(),
+      isFirefox = (!!ua.match("gecko") && !ua.match("khtml")),
+      isOpera = Object.prototype.toString.call(window.opera) == '[object Opera]',
+      addEvent, hsl2hex, wheelDelta;
       
-  addEvent = function(c,a,e,b){function d(a){e.apply(c,[a||window.event].concat(b));}b=b||[];try{c.addEventListener(a,d,0);}catch(f){c.attachEvent("on"+a,d);}};
+  addEvent = function(c,a,h){
+    function d(e){h.apply(c,[e||window.event]);}
+    if(c.addEventListener){c.addEventListener(a,d,0);}
+    else if(c.attachEvent){c.attachEvent("on"+a,d);}
+  };
+
   hsl2hex = (function(){
     function hue2rgb(v1,v2,h){
       if(h<0){ h+=1;}
@@ -46,10 +54,26 @@
   addEvent(window,"keydown",function(e){changing = true;});
   addEvent(window,"keyup",function(e){changing = false;});
 
-  addEvent(window,'scroll',function(e){
-    h = 360 - parseInt(360 * window.pageYOffset / (scrollHeight - window.innerHeight),10);
-    if(changing){ updateColor();}
-  });
+  function handleScroll(e){
+    e = e||window.event;
+    if(changing){
+      wheelDelta = 0;
+      if(e.detail){ wheelDelta = -e.detail/3;
+      }else if(e.wheelDelta){
+        wheelDelta = e.wheelDelta/120;
+        if(isOpera){wheelDelta = -wheelDelta;}
+      }
+      if(wheelDelta){
+        h = ((h += wheelDelta*7) < 0 ? 360+h:h) % 360;
+        updateColor();
+        if (e.preventDefault) e.preventDefault();
+        e.returnValue = false;        
+      }
+    }
+  }
+  if(document.addEventListener){document.addEventListener(isFirefox ? "DOMMouseScroll" : "mousewheel",handleScroll,0);}
+  else if(document.attachEvent){document.attachEvent("onmousewheel",handleScroll);}
+  else if(document.onmousewheel){document.onmousewheel = handleScroll;}
 
   addEvent(window,"mousemove",function(e){
     s = 100 - parseInt(100 * e.clientY/window.innerHeight,10);
